@@ -1,0 +1,13 @@
+version: 2.1
+jobs:
+    build:
+        working_directory: /tmp/avrios-mt-playground
+
+        docker:
+            - image: circleci/openjdk:11-jdk-stretch
+
+        steps:
+            - checkout
+            - run:
+                name: "Build project"
+                command: mvn verify -Dsonar.pullrequest.key=`echo "${CIRCLE_PULL_REQUEST}" | grep -Eo '[0-9]+$'` -Dsonar.pullrequest.branch=$CIRCLE_BRANCH sonar:sonar

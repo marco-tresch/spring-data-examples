@@ -24,6 +24,11 @@
   		<sonar.organization>marco-tresch</sonar.organization>
   		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
   		<sonar.login>12e8c157fe5f765188849da930fb29cc42a892d8</sonar.login>
+  		<!-- https://sonarcloud.io/documentation/analysis/pull-request/ -->
+  		<sonar.pullrequest.provider>github</sonar.pullrequest.provider>
+  		<sonar.pullrequest.github.repository>marco-tresch/spring-data-examples</sonar.pullrequest.github.repository>
+  		<sonar.pullrequest.key>[Unique identifier of your PR - provide on command line]</sonar.pullrequest.key>
+  		<sonar.pullrequest.branch>[The name of the branch that contains the changes to be merged - provide on command line]</sonar.pullrequest.branch>
 		<apt.version>1.1.3</apt.version>
 	</properties>
 
