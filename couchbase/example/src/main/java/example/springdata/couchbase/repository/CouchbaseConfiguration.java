@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package example.springdata.couchbase.repository;
 
+import com.couchbase.client.java.query.N1qlQuery;
 import example.springdata.couchbase.model.Airline;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.couchbase.config.BeanNames;
 import org.springframework.data.couchbase.core.CouchbaseOperations;
 import org.springframework.data.couchbase.repository.support.IndexManager;
 
-import com.couchbase.client.java.query.N1qlQuery;
+import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * Simple configuration class.
@@ -40,28 +39,29 @@ import com.couchbase.client.java.query.N1qlQuery;
 @RequiredArgsConstructor
 public class CouchbaseConfiguration {
 
-	private final CouchbaseOperations couchbaseOperations;
+    private final CouchbaseOperations couchbaseOperations;
 
-	/**
-	 * Create an {@link IndexManager} that allows index creation.
-	 *
-	 * @return
-	 */
-	@Bean(name = BeanNames.COUCHBASE_INDEX_MANAGER)
-	public IndexManager indexManager() {
-		return new IndexManager(true, true, false);
-	}
+    /**
+     * Create an {@link IndexManager} that allows index creation.
+     *
+     * @return
+     */
+    @Bean(name = BeanNames.COUCHBASE_INDEX_MANAGER)
+    @Autowired
+    public IndexManager indexManager() {
+        return new IndexManager(true, true, false);
+    }
 
-	@PostConstruct
-	private void postConstruct() {
+    @PostConstruct
+    private void postConstruct() {
 
-		// Need to post-process travel data to add _class attribute
-		List<Airline> airlinesWithoutClassAttribute = couchbaseOperations.findByN1QL(N1qlQuery.simple( //
-				"SELECT META(`travel-sample`).id AS _ID, META(`travel-sample`).cas AS _CAS, `travel-sample`.* " + //
-						"FROM `travel-sample` " + //
-						"WHERE type = \"airline\" AND _class IS MISSING;"),
-				Airline.class);
+        // Need to post-process travel data to add _class attribute
+        List<Airline> airlinesWithoutClassAttribute = couchbaseOperations.findByN1QL(N1qlQuery.simple( //
+                "SELECT META(`travel-sample`).id AS _ID, META(`travel-sample`).cas AS _CAS, `travel-sample`.* " + //
+                        "FROM `travel-sample` " + //
+                        "WHERE type = \"airline\" AND _class IS MISSING;"),
+                Airline.class);
 
-		airlinesWithoutClassAttribute.forEach(couchbaseOperations::save);
-	}
+        airlinesWithoutClassAttribute.forEach(couchbaseOperations::save);
+    }
 }

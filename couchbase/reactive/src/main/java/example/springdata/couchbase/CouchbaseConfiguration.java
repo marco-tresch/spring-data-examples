@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package example.springdata.couchbase;
 
 import example.springdata.couchbase.model.Airline;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -40,30 +42,33 @@ import com.couchbase.client.java.query.N1qlQuery;
 @RequiredArgsConstructor
 public class CouchbaseConfiguration {
 
-	private final ObjectProvider<CouchbaseOperations> couchbaseOperationsProvider;
+    // TODO: Violation
+    // TODO: And one more
+    @Autowired
+    private final ObjectProvider<CouchbaseOperations> couchbaseOperationsProvider;
 
-	/**
-	 * Create an {@link IndexManager} that allows index creation.
-	 *
-	 * @return
-	 */
-	@Bean(name = BeanNames.COUCHBASE_INDEX_MANAGER)
-	public IndexManager indexManager() {
-		return new IndexManager(true, true, false);
-	}
+    /**
+     * Create an {@link IndexManager} that allows index creation.
+     *
+     * @return
+     */
+    @Bean(name = BeanNames.COUCHBASE_INDEX_MANAGER)
+    public IndexManager indexManager() {
+        return new IndexManager(true, true, false);
+    }
 
-	@PostConstruct
-	private void postConstruct() {
+    @PostConstruct
+    private void postConstruct() {
 
-		// Need to post-process travel data to add _class attribute
+        // Need to post-process travel data to add _class attribute
 
-		CouchbaseOperations couchbaseOperations = couchbaseOperationsProvider.getIfUnique();
-		List<Airline> airlinesWithoutClassAttribute = couchbaseOperations.findByN1QL(N1qlQuery.simple( //
-				"SELECT META(`travel-sample`).id AS _ID, META(`travel-sample`).cas AS _CAS, `travel-sample`.* " + //
-						"FROM `travel-sample` " + //
-						"WHERE type = \"airline\" AND _class IS MISSING;"),
-				Airline.class);
+        CouchbaseOperations couchbaseOperations = couchbaseOperationsProvider.getIfUnique();
+        List<Airline> airlinesWithoutClassAttribute = couchbaseOperations.findByN1QL(N1qlQuery.simple( //
+                "SELECT META(`travel-sample`).id AS _ID, META(`travel-sample`).cas AS _CAS, `travel-sample`.* " + //
+                        "FROM `travel-sample` " + //
+                        "WHERE type = \"airline\" AND _class IS MISSING;"),
+                Airline.class);
 
-		airlinesWithoutClassAttribute.forEach(couchbaseOperations::save);
-	}
+        airlinesWithoutClassAttribute.forEach(couchbaseOperations::save);
+    }
 }
